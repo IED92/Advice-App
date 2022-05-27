@@ -1,19 +1,35 @@
-import React from "react";
-import { ReactComponent as DiceIcon } from "../assets/icon-dice.svg";
-import { ReactComponent as Divider } from "../assets/pattern-divider-desktop.svg";
+import React, { useState, useEffect } from "react";
+import AdviceItem from "../components/AdviceItem";
+import Loader from "../components/Loader";
 
 export function AdviceContainer() {
+  const [isLoading, setIsLoading] = useState({});
+  const [apiData, setApiData] = useState({});
+
+  const apiUrl = "https://api.adviceslip.com/advice";
+
+  useEffect(() => {
+    fetch(apiUrl)
+      .then((res) => res.json())
+      .then((data) => {
+        const adviceData = data;
+        setApiData(adviceData);
+        return adviceData;
+      })
+
+      .catch((e) => console.log(e))
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [apiUrl]);
+
   return (
-    <div className="flex flex-col text-center justify-between items-center bg-gray-700 w-6/12 h-64 rounded-lg py-10 px-20">
-      <p className="text-green-400 uppercase text-xs">advice #117</p>
-      <h3 className="leading- text-2xl font-semibold">
-        "It is east to sit up and take notice, what's difficult is getting up
-        and taking action."
-      </h3>
-      <Divider className="" />
-      <div className="bg-green-400 w-14 h-14 justify-evenly flex items-center rounded-full absolute mt-48">
-        <DiceIcon fill="374151" />
-      </div>
-    </div>
+    <>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <AdviceItem adviceId={apiData.slip.id} advice={apiData.slip.advice} />
+      )}
+    </>
   );
 }
